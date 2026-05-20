@@ -4,8 +4,9 @@ import Login from "../pages/auth/login";
 import Dashboard from "../pages/dashboard/dashboard";
 import ProtectedRoute from "../components/common/protectedRoute";
 import DashboardLayout from "../layouts/dashboardLayout";
-import UserPage from "../pages/users/userPage";
 import RoleRoute from "../components/common/roleRoute";
+import UserPage from "../pages/users/userPage";
+import BarberPage from "../pages/barbers/barberPage";
 
 function AppRouter() {
   return (
@@ -21,6 +22,11 @@ function AppRouter() {
           <Route path="/users" element={
             <RoleRoute allowedRoles={['ADMIN']}>
               <UserPage />
+            </RoleRoute>
+          }/>
+          <Route path="/barbers" element={
+            <RoleRoute allowedRoles={['ADMIN']}>
+              <BarberPage />
             </RoleRoute>
           }/>
         </Route>

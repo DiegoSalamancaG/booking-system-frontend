@@ -29,7 +29,7 @@ function UserForm({ onUserCreated, selectedUser, clearSelection }) {
             reset();
             onUserCreated();
         } catch (error) {
-            setApiError(error);
+            setApiError(error.message);
         }
     }
 
