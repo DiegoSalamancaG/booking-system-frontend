@@ -1,11 +1,12 @@
 import { create } from "zustand";
 
 const useAuthStore = create((set) => ({
-  user: null,
+  user: JSON.parse(localStorage.getItem("user")) || null,
   token: localStorage.getItem("token") || null,
 
   login: (token, user) => {
     localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
 
     set({
       token,
@@ -15,6 +16,7 @@ const useAuthStore = create((set) => ({
 
   logout: () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
     set({
       token: null,

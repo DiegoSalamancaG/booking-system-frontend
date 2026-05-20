@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import useAuthStore from "../../store/authStore";
 
 function Sidebar() {
+  const user = useAuthStore((state) => state.user);
   return (
     <aside style={{
         width: "220px",
@@ -10,9 +12,11 @@ function Sidebar() {
         }}>
       <ul style={{ listStyle: "none", padding: 0 }}>
         <li><Link to="/dashboard">Dashboard</Link></li>
-        <li><Link to="/appointments">Appointments</Link></li>
+        {user?.role === "ADMIN" && (
+          <li><Link to="/users">Users</Link></li>
+        )}
         <li><Link to="/services">Services</Link></li>
-        <li><Link to="/users">Users</Link></li>
+        <li><Link to="/appointments">Appointments</Link></li>
       </ul>
     </aside>
     );
