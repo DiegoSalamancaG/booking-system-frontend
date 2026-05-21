@@ -18,7 +18,9 @@ function Sidebar() {
         {user?.role === "ADMIN" && (
           <li><Link to="/barbers">Barbers</Link></li>
         )}
-        <li><Link to="/services">Services</Link></li>
+        {user?.role === "ADMIN" && (
+          <li><Link to="/services">Services</Link></li>
+        )}
         <li><Link to="/appointments">Appointments</Link></li>
       </ul>
     </aside>
