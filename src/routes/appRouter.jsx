@@ -9,6 +9,7 @@ import RoleRoute from "../components/common/roleRoute";
 import UserPage from "../pages/users/userPage";
 import BarberPage from "../pages/barbers/barberPage";
 import ServicesPage from "../pages/services/servicePage";
+import AppointmentPage from "../pages/appointments/appointmentPage";
 
 function AppRouter() {
   return (
@@ -34,6 +35,11 @@ function AppRouter() {
           <Route path="/services" element={
             <RoleRoute allowedRoles={['ADMIN']}>
               <ServicesPage />
+            </RoleRoute>
+          }/>
+          <Route path="/appointments" element={
+            <RoleRoute allowedRoles={['ADMIN']}>
+              <AppointmentPage />
             </RoleRoute>
           }/>
         </Route>

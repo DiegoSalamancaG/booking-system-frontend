@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 function Navbar() {
     const logout = useAuthStore((state) => state.logout);
+    const user = useAuthStore((state) => state.user);
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -20,7 +21,7 @@ function Navbar() {
             alignItems: "center",
             padding: "0 2rem"
         }}>
-        <h2>Barber Admin</h2>
+        <h2>Hi, {user?.fullName}</h2>
 
         <button onClick={handleLogout}>
             Logout

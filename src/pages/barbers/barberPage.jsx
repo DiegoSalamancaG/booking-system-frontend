@@ -1,28 +1,43 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import BarberForm from "../../components/barbers/barberForm";
 import BarberList from "../../components/barbers/barberList";
 
 function BarberPage() {
     const [refreshKey, setRefreshKey] = useState(0);
-    const [selectedBarber, setSelectedBarber ] = useState(null);
+    const [selectedBarber, setSelectedBarber] = useState(null);
+    const formRef = useRef();
 
-    const refreshList = () =>{
-        setRefreshKey((refreshKey) => refreshKey + 1);
-    }
+    const refreshList = () => {
+        setRefreshKey((prevKey) => prevKey + 1);
+    };
+
+    const clearSelection = () => {
+        setSelectedBarber(null);
+    };
+
+    const handleEdit = (barber) => {
+        setSelectedBarber(barber);
+        formRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    };
 
     return (
         <>
-            <h2>Barber Management</h2>
-            <BarberForm onBarberCreated={refreshList}
+            <h2 ref={formRef}>Barber Management</h2>
+            <BarberForm
+                onBarberCreated={refreshList}
                 selectedBarber={selectedBarber}
-                clearSelection={() => setSelectedBarber(null)}
+                clearSelection={clearSelection}
             />
-            <BarberList refreshKey={refreshKey}
-                onEdit={setSelectedBarber}
+            <BarberList
+                refreshKey={refreshKey}
+                onEdit={handleEdit}
                 onDelete={refreshList}
             />
         </>
-    )
+    );
 }
 
 export default BarberPage;

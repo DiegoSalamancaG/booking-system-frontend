@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 
+import Table from "../ui/table";
+import Button from "../ui/button";
+import StatusBadge from "../ui/statusBadge";
+import Alert from "../ui/alert";
+
 function BarberList({refreshKey, onEdit, onDelete}) {
     const [ apiError, setApiError ] = useState(null);
     const [ barbers, setBarbers ] = useState([]);
-
-    useEffect(() => {
-        fetchBarbers();
-    }, [refreshKey]);
 
     const fetchBarbers = async () => {
         try {
@@ -15,9 +16,14 @@ function BarberList({refreshKey, onEdit, onDelete}) {
             const response = await api.get("/barbers");
             setBarbers(response.data.data);
         } catch (error) {
-            setApiError(error.message);
+            setApiError(error);
         }
     }
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchBarbers();
+    }, [refreshKey]);
 
     const handleDelete = async (barberId) => {
         if(!window.confirm("¿Estás seguro de eliminar este barbero?")) return;
@@ -25,46 +31,62 @@ function BarberList({refreshKey, onEdit, onDelete}) {
             await api.delete(`/barbers/${barberId}`);
             onDelete();
         } catch (error) {
-            setApiError(error.message);
+            setApiError(error);
         }
     }
+    const cellStyle = {
+        padding: "16px 12px",
+        fontSize: "0.9rem",
+        borderBottom: "1px solid #eee",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        verticalAlign: "left"
+    };
 
     return (
-        <div>
-            <h3>Lista de Barberos</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Nombre</th>
-                        <th>Email</th>
-                        <th>Rol</th>
-                        <th>Años de Experiencia</th>
-                        <th>Biografía</th>
-                        <th>Status</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {barbers.map((b) => (
-                        <tr key={b.userId}>
-                            <td>{b.userId}</td>
-                            <td>{b.user.fullName}</td>
-                            <td>{b.user.email}</td>
-                            <td>{b.user.role}</td>
-                            <td>{b.experienceYears}</td>
-                            <td>{b.bio}</td>
-                            <td>{b.user.status==="ACTIVE" ? "Activo" : "Inactivo"}</td>
-                            <td>
-                                <button onClick={() => onEdit(b)}>Editar</button>
-                                {b.user.status==="ACTIVE" ? (<button onClick={() => handleDelete(b.userId)}>Eliminar</button>) : null}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    )
+        <>
+        {apiError && <Alert message={apiError} type="error" />}
+        <Table
+            title="Lista de Barberos"
+            headers={["Id", "Nombre", "Email", "Rol", "EXP", "Biografía", "Status", "Acciones"]}
+            columnWidths={["5%", "18%", "20%", "9%", "8%", "15%", "8%", "17%"]}
+        >
+            {barbers.map((b) => (
+                <tr key={b.userId}>
+                    <td style={cellStyle}>{b.userId}</td>
+                    <td style={cellStyle}>{b.user.fullName}</td>
+                    <td style={cellStyle}>{b.user.email}</td>
+                    <td style={cellStyle}>{b.user.role}</td>
+                    <td style={cellStyle}>{b.experienceYears}</td>
+                    <td style={cellStyle}>
+                        {b.bio.length > 25
+                            ? `${b.bio.slice(0, 25)}...`
+                            : b.bio}
+                    </td>
+                    <td style={cellStyle}>
+                        <StatusBadge status={b.user.status} />
+                    </td>
+                    <td style={cellStyle}>
+                        <div style={{ display: "flex", gap: "8px", justifyContent: "flex-start", flexWrap: "nowrap" }}>
+                            <Button size="sm" fullWidth={false} onClick={() => onEdit(b)}>
+                                Editar
+                            </Button>
+                            <Button
+                                variant="danger"
+                                size="sm"
+                                fullWidth={false}
+                                onClick={() => handleDelete(b.userId)}
+                            >
+                                Eliminar
+                            </Button>
+                        </div>
+                    </td>
+                </tr>
+            ))}
+        </Table>
+        </>
+    );
 }
 
 export default BarberList;

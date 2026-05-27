@@ -1,34 +1,63 @@
-import {  use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import api from "../../api/axios";
 
-function BarberList({ onBarberCreated, selectedBarber, clearSelection }) {
-    const { register, handleSubmit, reset, setValue } = useForm();
+import FormContainer from "../ui/formContainer";
+import Button from "../ui/button";
+import Input from "../ui/input";
+import Alert from "../ui/alert";
+
+function BarberForm({ onBarberCreated, selectedBarber, clearSelection }) {
+    const { register, handleSubmit, reset } = useForm();
     const [ apiError, setApiError ] = useState(null);
     const [ apiMessage, setApiMessage ] = useState(null);
 
     useEffect(() => {
         if(selectedBarber){
-            setValue("fullName", selectedBarber.user.fullName);
-            setValue("email", selectedBarber.user.email);
-            setValue("experienceYears", selectedBarber.experienceYears);
-            setValue("bio", selectedBarber.bio);
+            reset({
+                fullName: selectedBarber.user.fullName,
+                email: selectedBarber.user.email,
+                experienceYears: selectedBarber.experienceYears,
+                bio: selectedBarber.bio
+            });
+        } else {
+            reset({
+                fullName: "",
+                email: "",
+                experienceYears: 0,
+                bio: ""
+            });
         }
-    }, [selectedBarber, setValue]);
+    }, [selectedBarber, reset]);
+
+    useEffect( () => {
+        if(apiMessage || apiError) {
+            const timer = setTimeout(() => {
+                setApiMessage(null);
+                setApiError(null);
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [apiMessage, apiError]);
 
     const onSubmit = async (data) => {
         setApiError(null);
         setApiMessage(null);
+        let response;
+
         const payload = {
             ...data,
             role: "BARBER",
         };
+        if(!payload.password) {
+            delete payload.password;
+        }
         try {
             if(selectedBarber){
-                const response = await api.put(`/barbers/${selectedBarber.userId}`, payload);
+                response = await api.put(`/barbers/${selectedBarber.userId}`, payload);
                 setApiMessage(response.data.message);
             } else {
-                const response = await api.post("/barbers/", payload);
+                response = await api.post("/barbers/", payload);
                 setApiMessage(response.data.message);
             }
             reset();
@@ -39,32 +68,57 @@ function BarberList({ onBarberCreated, selectedBarber, clearSelection }) {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <h3>{selectedBarber ? "Editar Barbero" : "Crear Barbero"}</h3>
-            <input placeholder="nombre completo" {...register("fullName")} />
-            {!selectedBarber &&
-                <input placeholder="email" {...register("email")} />
-            }
-            <input placeholder="contraseña" type="password" {...register("password")} />
-            <input type="number" {...register("experienceYears", { valueAsNumber: true})}/>
-            <textarea placeholder="biografía" {...register("bio")} />
-            {selectedBarber &&
-                <button 
-                    type="button"
-                    onClick={() => {
-                        clearSelection();
-                    }}
-                >
-                    Cancelar
-                </button>
-            }
-            <button type="submit">
-                {selectedBarber ? "Actualizar Barbero" : "Crear Barbero"}
-            </button>
-            {apiError && <p style={{ color: "red" }}>{apiError}</p>}
-            {apiMessage && <p style={{ color: "green" }}>{apiMessage}</p>}
-        </form>
+        <FormContainer 
+            title={selectedBarber ? "Editar Barbero" : "Crear Barbero"}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <Input
+                    placeholder="Nombre completo"
+                    register={register("fullName")}
+                    autoComplete="off"
+                />
+                {!selectedBarber && (
+                    <Input
+                        placeholder="Email"
+                        register={register("email")}
+                        autoComplete="off"
+                    />
+                )}
+                <Input
+                    placeholder="Contraseña"
+                    type="password"
+                    register={register("password")}
+                    autoComplete="new-password"
+                />
+                <Input
+                    placeholder="Años de experiencia"
+                    type="number"
+                    register={register("experienceYears", { valueAsNumber: true })}
+                    autoComplete="off"
+                />
+                <Input
+                    placeholder="Biografía"
+                    register={register("bio")}
+                    autoComplete="off"
+                />
+                {selectedBarber && (
+                    <Button
+                        type="button"
+                        onClick={() => {
+                            reset();
+                            clearSelection();
+                        }}
+                    >
+                        Cancelar Edición
+                    </Button>
+                )}
+                <Button type="submit">
+                    {selectedBarber ? "Actualizar Barbero" : "Crear Barbero"}
+                </Button>
+                {apiError && <Alert message={apiError} type="error" />}
+                {apiMessage && <Alert message={apiMessage} type="success" />}
+            </form>
+        </FormContainer>
     )
 }
 
-export default BarberList;
+export default BarberForm;
