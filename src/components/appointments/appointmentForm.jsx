@@ -73,6 +73,7 @@ function AppointmentForm({ onAppointmentCreated, selectedAppointment, clearSelec
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchFormOptions();
     }, []);
 
@@ -92,6 +93,7 @@ function AppointmentForm({ onAppointmentCreated, selectedAppointment, clearSelec
                 status: selectedAppointment.status,
                 notes: selectedAppointment.notes
             });
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setStartTimePreview(toDateTimeLocalValue(selectedAppointment.startTimeUTC || selectedAppointment.startTime));
             setSelectedServicePreview(serviceFromOptions || {
                 ...selectedAppointment.service,
